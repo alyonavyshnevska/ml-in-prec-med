@@ -49,8 +49,8 @@ X_train.head()
 
 ```python
 y_train[0:20] # 1 where malignant, 0 otherwise
-y_train = [1 if x == 'M' else 0 for x in y_train]
-y_test = [1 if x == 'M' else 0 for x in y_test]
+# y_train = [1 if x == 'M' else 0 for x in y_train]
+# y_test = [1 if x == 'M' else 0 for x in y_test]
 ```
 
 <!-- #region -->
@@ -118,8 +118,8 @@ def logloss(y, y_hat):
     y -- scalar or numpy array
     y_hat -- scalar or numpy array
     """
-    return log_loss(y, y_hat)
-#     return - np.sum(np.log(y_hat[y == 1])) - np.sum(np.log(1 - y_hat[y == 0]))
+#     return log_loss(y, y_hat)
+    return - np.sum(np.log(y_hat[y == 1])) - np.sum(np.log(1 - y_hat[y == 0]))
     
 ```
 
@@ -243,7 +243,7 @@ class Steepest_descent_optimizer():
         
         self.w = np.zeros(X.shape[1]) # we initialize the weights with zeros
         
-        self.max_iter = 10 # set the max number of iterations
+        self.max_iter = 1000 # set the max number of iterations
     
     def _gradient(self):
         xw = self.X.dot(self.w)

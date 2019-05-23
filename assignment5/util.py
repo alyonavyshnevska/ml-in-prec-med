@@ -31,8 +31,8 @@ def load_data(path,testing_data=False, columns=None):
         return x_test, y_test
     else:
         return x_train, y_train
-    
-    
+
+
 def plot_confusion_matrix(y_hat, y_test, threshold=0.5):
     
     print("number samples: " + str(y_test.shape[0]))

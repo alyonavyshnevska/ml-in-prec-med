@@ -31,6 +31,10 @@ from sklearn.model_selection import train_test_split
 import util
 ```
 
+```python
+from IPython.display import clear_output
+```
+
 For this exercise, we have outsourced some functions, which we frequently use in a second python script 'util.py'. 
 
 ```python
@@ -45,6 +49,8 @@ X_train.head()
 
 ```python
 y_train[0:20] # 1 where malignant, 0 otherwise
+# y_train = [1 if x == 'M' else 0 for x in y_train]
+# y_test = [1 if x == 'M' else 0 for x in y_test]
 ```
 
 <!-- #region -->
@@ -72,11 +78,16 @@ Here, as we are modeling linear functions, $a=\mathbf{x}_n\mathbf{w}$, where $\m
 ## Task 1: ##  
 Implement the logistic sigmoid following the formula above. We have to make sure that the output of this function is never exactly 0 or 1, because we will take the log of it. Therefore, we use np.clip() to limit range (from ... to).
 
+
+When you implement the logistic() function you should use numpy.clip() 
+to ensure the returned value is never exactly 0 or exactly 1. 
+I.e. you would clip your output to the range from 1e-10 to (1-1e-10).
+
 ```python
 def logistic(a):
-    logist = # your_code
-    logist = # your_code
-    return logist
+    logist = np.exp (a) / (1 + np.exp(a))
+#     np.clip([-100, -10, 0, 10, 100], a_min=-15, a_max=15)
+    return np.clip(logist, a_min=1e-10, a_max=1-1e-10)
 ```
 
 As in every machine learning problem, we need to define an **objective** function $L$. It quantifies the error between our predictions and the ground-truth. We then determine the weights $\mathbf{w}^{opt}$ that minimize $L$.
@@ -98,6 +109,8 @@ Where $c_1$ are all the members of the first class (here: malignant, `y == 1.`) 
 Implement the log-loss (binary cross entropy function) using the formula above. 
 
 ```python
+from sklearn.metrics import log_loss
+
 def logloss(y, y_hat):
     """
     return the loss for predicted probabilities y_hat, and class labels y
@@ -105,10 +118,8 @@ def logloss(y, y_hat):
     y -- scalar or numpy array
     y_hat -- scalar or numpy array
     """
-
-    loss = #your_code
-    
-    return loss
+#     return log_loss(y, y_hat)
+    return - np.sum(np.log(y_hat[y == 1])) - np.sum(np.log(1 - y_hat[y == 0]))
     
 ```
 
@@ -134,8 +145,7 @@ def regularizer(w, lambd):
     '''
     return the value for the regularizer for a given w and lamd
     ''' 
-    reg = # your_code
-    return reg
+    return lambd * 0.5 * np.sum(w**2)
 ```
 
 ### The derivative
@@ -201,8 +211,28 @@ The `_update()` method should get the gradient using `self._gradient()` and upda
 Finally, the `optimize()` function will update the weights for `self.max_iter` times, and after every update calculate the loss (including the regularizer) and store it in a list `loss`. Finally, it returns this `loss`-"history".
 
 
+
+\begin{equation}
+\nabla{L}\left(\mathbf{w}^{t}\right) =
+\left[\begin{matrix}
+\frac{\partial L}{\partial w^t_1}\\
+\vdots\\
+\frac{\partial L}{\partial w^t_D}
+\end{matrix}\right]
+=
+\underbrace{\mathbf{X}^{T}
+ \left( \pi\left(\mathbf{X}\mathbf{w}^t\right)-I\left(\mathbf{y}==c_1\right)\right)}_{\nabla{\text{loss}}\left(\mathbf{w}^{t}\right)}+ \underbrace{\lambda \cdot \mathbf{w}^t}_{\nabla{\text{regularizer}}\left(\mathbf{w}^{t}\right)}
+\end{equation}
+
 ```python
 class Steepest_descent_optimizer():
+    
+    def update_progress(self, progress):
+        bar_length = 50
+        block = int(round(bar_length * progress))
+        clear_output(wait = True)
+        text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+        print(text)
     
     def __init__(self,X,y,lambd,alpha):
         self.alpha = alpha
@@ -213,17 +243,19 @@ class Steepest_descent_optimizer():
         
         self.w = np.zeros(X.shape[1]) # we initialize the weights with zeros
         
-        self.max_iter = 10000 # set the max number of iterations
+        self.max_iter = 1000 # set the max number of iterations
     
     def _gradient(self):
-        # calculate the gradient of w 
-        # your_code
+        xw = self.X.dot(self.w)
+        loss = (self.X.T).dot(logistic(xw) - self.y)
+        reg = (self.lambd * self.w)
+        grad = loss + reg
         return grad
     
     def _update(self):
         grad = self._gradient()
         # update the weights using the gradient and learning rate
-        self.w =  # your_code
+        self.w = self.w - (self.alpha * grad)
         
     def predict(self, X):
         return logistic(X.dot(self.w))
@@ -234,12 +266,14 @@ class Steepest_descent_optimizer():
         # we iterate until we reach self.max_iter
         while it < self.max_iter:
             # update the weights (use the method you implemented above)
+            self._update()
             # append the current loss (use self.predict, and the regularizer(), and logloss() functions)
             
             # your_code
-            
-            loss.append(# your_code
+            y_hat = self.predict(self.X)
+            loss.append(logloss(self.y, y_hat) + regularizer(self.w, self.lambd))
             it += 1
+            self.update_progress(it/self.max_iter)
         return loss
 ```
 

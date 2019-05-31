@@ -63,7 +63,13 @@ Implement a function that will construct the covariance matrix $\mathbf{K}$ ($\m
 # Task 1: We construct a covariance matrix K that defines our Gaussian process
 def k_sqexp(x, A, L):
     
+    K = np.ones(shape=(len(x),len(x)))
     # your_code (use either a nested loop or nested list comprehension to contstruct K)
+    for i, xi in enumerate(x):
+        for j, xj in enumerate(x):
+            inner = ((xi - xj) ** 2) / L**2
+            kse = A**2 * np.exp(-0.5 * inner)
+            K[i][j] = kse
     
     # we add a small offset to the diagnonal for numerical stability later
     K = K + np.eye(len(x))*1e-7
@@ -116,7 +122,7 @@ We will visualize this for one example.
 Sample a set of `len(x)` independent variables from the distribution $\mathcal{N}(0,1)$ (tip: use `normal()`), store the values in `y_tilde`. Calculate the corresponding cholesky matrices for the kernel matrices `K1`, `K2`, `K3` with the `cholesky()` function (already imported above), which will give you chol1, chol2 and chol3 respectively. Rotate `y_tilde` with the different cholesky matrices, which will yield `y1`, `y2` and `y3` respectively:
 
 ```python
-y_tilde = # your_code (literally one function call)
+y_tilde = normal(0,1, len(x))
 ```
 
 ```python
@@ -126,10 +132,12 @@ plt.legend()
 
 ```python
 # calculate cholesky matrices for K1, K2, K3:
-chol1, chol2, chol3 = # your_code 
+chol1, chol2, chol3 = cholesky(K1), cholesky(K2), cholesky(K3)
+print(type(chol1), chol1.shape)
 
 # "rotate" y_tilde with chol1, chol2 and col3: 
-y1, y2, y3 = # your_code
+y1, y2, y3 = y_tilde.dot(chol1), y_tilde.dot(chol2), y_tilde.dot(chol3)
+print(type(y1), y1.shape)
 ```
 
 ```python
@@ -160,10 +168,13 @@ For this, write a function that takes a kernel matrix `K` and an integer `t`, an
 ```python
 # write a function that samples from our Gaussian process t-times, and returns a matrix S
 
-def sample_gauss(K,n):
-    
-    # your_code
-    
+def sample_gauss(K,t):
+    M = K.shape[0]
+    S = np.ones((t,M))
+    L = np.linalg.cholesky(K + 1e-15*np.eye(M))
+    for i in range(M):
+        S[i] = y_tilde.dot(L)
+
     return S
 
 ```
@@ -176,6 +187,10 @@ Y = sample_gauss(K1, 150)
 print('Y.shape: {}'.format(Y.shape))
 ```
 
+```python
+print(Y)
+```
+
 ** Expected Output:**   
 Y.shape: (150, 100)
 
@@ -185,8 +200,25 @@ Finally, we pick two points (columns of `Y`), and plot them against each other a
 
 Repeat the plot below for different pairs of points. What do we observe when we pick points that are close to each other (i.e. 10 and 12), vs when we pick points that are far away? 
 
+
+Values that are close together in input space produce output values thatalso are close together.
+
 ```python
-plt.scatter(Y[:,1], Y[:,10])
+plt.scatter(Y[:,10], Y[:,12])
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
+```
+
+```python
+plt.scatter(Y[:,1], Y[:,20])
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
+```
+
+```python
+plt.scatter(Y[:,1], Y[:,99])
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
 ```
 
 Congratulations, you made it through the sixth tutorial of this course!
@@ -202,3 +234,7 @@ As this is also the first time for us preparing this tutorial, you are welcome t
 Thank you!  
 
 Jana & Remo
+
+```python
+
+```

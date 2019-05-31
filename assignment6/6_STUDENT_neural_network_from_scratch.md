@@ -40,7 +40,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_
 sns.set_style("whitegrid")
 plt.figure(figsize=(8,8))
 plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train.ravel(), s=50, cmap=plt.cm.Spectral, edgecolors='black');
+plt.show()
+```
 
+```python
+X.shape
+```
+
+```python
+y.shape
 ```
 
 From this plot we can see that the data is not linearly separable. So let's use a neural network model to classify the blue from the red data points. Here we will use a neural network, with 4 hidden layers with 25, 50, 50 and 25 units respectively and an output layer of 2 units for our binary classification (red or blue).
@@ -131,11 +139,11 @@ Implement the sigmoid and relu functions, which take the linear transformation Z
 ```python
 # STUDENT
 def sigmoid(Z):
-    sig = #your_code
+    sig = 1/(1 + np.exp(-Z))
     return sig
 
 def relu(Z):
-    relu = #your_code
+    relu = np.max(0,Z)
     return relu
 ```
 

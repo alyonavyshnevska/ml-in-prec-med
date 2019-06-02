@@ -231,7 +231,9 @@ def get_cost_value(Y_hat, Y):
     # number of examples
     m = Y_hat.shape[1]
     # calculation of the cost according to the formula
-    cost = #your_code
+    losses_and_reg = [y * np.log(Y_hat[ind]) 
+                               + (1 - y) * (np.log(1-Y_hat[ind])) for ind,y in enumerate(Y)]
+    cost = -1/m * sum(losses_and_reg)
     return np.squeeze(cost)
 ```
 

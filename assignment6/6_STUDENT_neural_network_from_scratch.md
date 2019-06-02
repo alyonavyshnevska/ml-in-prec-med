@@ -158,7 +158,7 @@ Implement the linear transformation input $\mathbf{Z}$ of the next layer with th
 def single_layer_forward_propagation(A_prev, W_curr, b_curr, activation="relu"):
     # calculation of the input value for the activation function
     
-    Z_curr = #your_code
+    Z_curr = W_curr.dot(A_prev.T) + b_curr
     
     # selection of activation function
     if activation is "relu":
@@ -202,12 +202,13 @@ def full_forward_propagation(X, params_values, nn_architecture):
         b_curr = params_values["b" + str(layer_idx)]
         # calculation of activation for the current layer
         
-        A_curr, Z_curr = #your_code
+        A_curr, Z_curr = single_layer_forward_propagation(
+            A_prev, W_curr, b_curr, activ_function_curr)
         
         # saving calculated values in the memory
         memory["A" + str(idx)] = A_prev
         memory["Z" + str(layer_idx)] = Z_curr
-       
+        
     # return of prediction vector and a dictionary containing intermediate values
     return A_curr, memory
 

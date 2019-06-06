@@ -441,7 +441,7 @@ Now we have everything we need to train our model. The final task of this exerci
 def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
     # initiation of neural net parameters
     
-    params_values = #your_code
+    params_values = init_layers(nn_architecture)
     
     # initiation of lists storing the history 
     # of metrics calculated during the learning process 
@@ -451,7 +451,7 @@ def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
     # performing calculations for subsequent iterations
     for i in range(epochs):
         # step forward
-        Y_hat, cache = #your_code
+        Y_hat, cache = full_forward_propagation(X, params_values, nn_architecture)
         
         # calculating metrics and saving them in history
         cost = get_cost_value(Y_hat, Y)
@@ -460,10 +460,11 @@ def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
         accuracy_history.append(accuracy)
         
         # step backward - calculating gradient
-        grads_values = #your_code
+        grads_values = full_backward_propagation(
+            Y_hat, Y, cache, params_values, nn_architecture)
         
         # updating model state
-        params_values = #your_code
+        params_values = update(params_values, grads_values, nn_architecture, learning_rate)
         
         if(i % 50 == 0):
             if(verbose):

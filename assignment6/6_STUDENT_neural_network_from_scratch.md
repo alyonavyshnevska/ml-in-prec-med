@@ -426,8 +426,8 @@ def update(params_values, grads_values, nn_architecture, learning_rate):
 
     # iteration over network layers
     for layer_idx, layer in enumerate(nn_architecture, 1):
-        params_values["W" + str(layer_idx)] = #your_code        
-        params_values["b" + str(layer_idx)] = #your_code 
+        params_values["W" + str(layer_idx)] -= learning_rate * grads_values["W" + str(layer_idx)]
+        params_values["b" + str(layer_idx)] -= learning_rate * grads_values["b" + str(layer_idx)]
 
     return params_values;
 ```

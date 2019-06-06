@@ -332,11 +332,11 @@ def single_layer_backward_propagation(dA_curr, W_curr, b_curr, Z_curr, A_prev, a
     dZ_curr = backward_activation_func(dA_curr, Z_curr)
     
     # derivative of the matrix W
-    dW_curr = #your_code
+    dW_curr = 1/m * dZ_curr.dot(A_prev.T)
     # derivative of the vector b
-    db_curr = #your_code
+    db_curr = 1/m * np.sum(dZ_curr, axis=1, keepdims=True)
     # derivative of the matrix A_prev
-    dA_prev = #your_code
+    dA_prev = W_curr.T.dot(dZ_curr)
 
     return dA_prev, dW_curr, db_curr
 ```

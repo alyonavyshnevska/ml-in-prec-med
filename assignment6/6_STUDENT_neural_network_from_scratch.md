@@ -230,9 +230,10 @@ def get_cost_value(Y_hat, Y):
     # number of examples
     m = Y_hat.shape[1]
     # calculation of the cost according to the formula
-    losses_and_reg = [y * np.log(Y_hat[ind]) 
-                               + (1 - y) * (np.log(1-Y_hat[ind])) for ind,y in enumerate(Y)]
-    cost = -1/m * sum(losses_and_reg)
+    losses_and_reg = [y * np.log(y_hat) 
+                               + (1 - y_hat) * (np.log(1-y_hat)
+                                                ) for y,y_hat in zip(Y,Y_hat)]
+    cost = -1/m * np.sum(losses_and_reg)
     return np.squeeze(cost)
 ```
 
@@ -468,7 +469,6 @@ def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
         if(i % 50 == 0):
             if(verbose):
                 print("Iteration: {} - cost: {} - accuracy: {}".format(i, cost, accuracy))
-#                 print(i,cost,accuracy)
     return params_values, cost_history, accuracy_history 
 ```
 

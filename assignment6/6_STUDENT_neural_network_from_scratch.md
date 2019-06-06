@@ -287,14 +287,14 @@ $$ \sigma^{'}(z) = \sigma (z)\cdot (1-\sigma(z)) $$
 # STUDENT
 
 def relu_backward(dA, Z):
-    dZ = #your_code
+    dZ = dA * relu(Z)
     
     return dZ;
 
 def sigmoid_backward(dA, Z):
     # tip: make use of the "sigmoid"-function we implemented above 
-    sig = #your_code
-    dZ = #your_code
+    sig = sigmoid(Z)
+    dZ = dA * sig
     return dZ
 ```
 

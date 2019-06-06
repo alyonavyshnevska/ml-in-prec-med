@@ -396,7 +396,8 @@ def full_backward_propagation(Y_hat, Y, memory, params_values, nn_architecture):
         W_curr = params_values["W" + str(layer_idx_curr)]
         b_curr = params_values["b" + str(layer_idx_curr)]
         
-        dA_prev, dW_curr, db_curr = #your_code
+        dA_prev, dW_curr, db_curr = single_layer_backward_propagation(
+            dA_curr, W_curr, b_curr, Z_curr, A_prev, activ_function_curr)
         
         grads_values["dW" + str(layer_idx_curr)] = dW_curr
         grads_values["db" + str(layer_idx_curr)] = db_curr

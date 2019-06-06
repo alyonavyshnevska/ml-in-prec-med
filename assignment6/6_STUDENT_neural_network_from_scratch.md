@@ -143,7 +143,7 @@ def sigmoid(Z):
     return sig
 
 def relu(Z):
-    relu = np.max(0,Z)
+    relu = np.fmax(0, Z)
     return relu
 ```
 
@@ -158,8 +158,7 @@ Implement the linear transformation input $\mathbf{Z}$ of the next layer with th
 def single_layer_forward_propagation(A_prev, W_curr, b_curr, activation="relu"):
     # calculation of the input value for the activation function
     
-    Z_curr = W_curr.dot(A_prev.T) + b_curr
-    
+    Z_curr = W_curr.dot(A_prev) + b_curr
     # selection of activation function
     if activation is "relu":
         activation_func = relu
@@ -203,7 +202,7 @@ def full_forward_propagation(X, params_values, nn_architecture):
         # calculation of activation for the current layer
         
         A_curr, Z_curr = single_layer_forward_propagation(
-            A_prev, W_curr, b_curr, activ_function_curr)
+            A_prev, W_curr, b_curr, str(activ_function_curr))
         
         # saving calculated values in the memory
         memory["A" + str(idx)] = A_prev
@@ -397,7 +396,7 @@ def full_backward_propagation(Y_hat, Y, memory, params_values, nn_architecture):
         b_curr = params_values["b" + str(layer_idx_curr)]
         
         dA_prev, dW_curr, db_curr = single_layer_backward_propagation(
-            dA_curr, W_curr, b_curr, Z_curr, A_prev, activ_function_curr)
+            dA_curr, W_curr, b_curr, Z_curr, A_prev, str(activ_function_curr))
         
         grads_values["dW" + str(layer_idx_curr)] = dW_curr
         grads_values["db" + str(layer_idx_curr)] = db_curr
@@ -426,8 +425,8 @@ def update(params_values, grads_values, nn_architecture, learning_rate):
 
     # iteration over network layers
     for layer_idx, layer in enumerate(nn_architecture, 1):
-        params_values["W" + str(layer_idx)] -= learning_rate * grads_values["W" + str(layer_idx)]
-        params_values["b" + str(layer_idx)] -= learning_rate * grads_values["b" + str(layer_idx)]
+        params_values["W" + str(layer_idx)] -= learning_rate * grads_values["dW" + str(layer_idx)]
+        params_values["b" + str(layer_idx)] -= learning_rate * grads_values["db" + str(layer_idx)]
 
     return params_values;
 ```
@@ -468,9 +467,9 @@ def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
         
         if(i % 50 == 0):
             if(verbose):
-                print("Iteration: {:05} - cost: {:.5f} - accuracy: {:.5f}".format(i, cost, accuracy))
-            
-    return params_values
+                print("Iteration: {} - cost: {} - accuracy: {}".format(i, cost, accuracy))
+#                 print(i,cost,accuracy)
+    return params_values, cost_history, accuracy_history 
 ```
 
 ```python

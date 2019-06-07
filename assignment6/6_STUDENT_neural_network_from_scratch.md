@@ -143,7 +143,7 @@ def sigmoid(Z):
     return sig
 
 def relu(Z):
-    relu = np.fmax(0, Z)
+    relu = np.maximum(Z, 0)
     return relu
 ```
 
@@ -160,15 +160,15 @@ def single_layer_forward_propagation(A_prev, W_curr, b_curr, activation="relu"):
     
     Z_curr = W_curr.dot(A_prev) + b_curr
     # selection of activation function
-    if activation is "relu":
-        activation_func = relu
-    elif activation is "sigmoid":
-        activation_func = sigmoid
-    else:
-        raise Exception('Non-supported activation function')
+#     if activation is "relu":
+#         activation_func = relu
+#     elif activation is "sigmoid":
+#         activation_func = sigmoid
+#     else:
+#         raise Exception('Non-supported activation function')
         
     # return of calculated activation A and the intermediate Z matrix
-    return activation_func(Z_curr), Z_curr
+    return globals()[activation](Z_curr), Z_curr
 ```
 
 We will now implement the forward propagation through the entire network and call the function above for each layer. 
@@ -202,7 +202,7 @@ def full_forward_propagation(X, params_values, nn_architecture):
         # calculation of activation for the current layer
         
         A_curr, Z_curr = single_layer_forward_propagation(
-            A_prev, W_curr, b_curr, str(activ_function_curr))
+            A_prev, W_curr, b_curr, activ_function_curr)
         
         # saving calculated values in the memory
         memory["A" + str(idx)] = A_prev
@@ -230,10 +230,8 @@ def get_cost_value(Y_hat, Y):
     # number of examples
     m = Y_hat.shape[1]
     # calculation of the cost according to the formula
-    losses_and_reg = [y * np.log(y_hat) 
-                               + (1 - y_hat) * (np.log(1-y_hat)
-                                                ) for y,y_hat in zip(Y,Y_hat)]
-    cost = -1/m * np.sum(losses_and_reg)
+
+    cost = - np.mean(np.sum(Y * np.log(Y_hat) + (1 - Y) * np.log(1 - Y_hat)))
     return np.squeeze(cost)
 ```
 
@@ -287,13 +285,12 @@ $$ \sigma^{'}(z) = \sigma (z)\cdot (1-\sigma(z)) $$
 # STUDENT
 
 def relu_backward(dA, Z):
-    dZ = dA * relu(Z)
-    
-    return dZ;
+    dZ = dA * np.where(Z>0,1,0)
+    return dZ
 
 def sigmoid_backward(dA, Z):
     # tip: make use of the "sigmoid"-function we implemented above 
-    sig = sigmoid(Z)
+    sig = sigmoid(Z) * (1-sigmoid(Z))
     dZ = dA * sig
     return dZ
 ```
@@ -426,8 +423,8 @@ def update(params_values, grads_values, nn_architecture, learning_rate):
 
     # iteration over network layers
     for layer_idx, layer in enumerate(nn_architecture, 1):
-        params_values["W" + str(layer_idx)] -= learning_rate * grads_values["dW" + str(layer_idx)]
-        params_values["b" + str(layer_idx)] -= learning_rate * grads_values["db" + str(layer_idx)]
+        params_values["W" + str(layer_idx)] = params_values["W" + str(layer_idx)] - learning_rate * grads_values["dW" + str(layer_idx)]
+        params_values["b" + str(layer_idx)] = params_values["b" + str(layer_idx)] - learning_rate * grads_values["db" + str(layer_idx)]
 
     return params_values;
 ```
@@ -468,6 +465,7 @@ def train(X, Y, nn_architecture, epochs, learning_rate, verbose=False):
         
         if(i % 50 == 0):
             if(verbose):
+
                 print("Iteration: {} - cost: {} - accuracy: {}".format(i, cost, accuracy))
     return params_values, cost_history, accuracy_history 
 ```

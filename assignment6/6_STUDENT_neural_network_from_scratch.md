@@ -159,14 +159,7 @@ def single_layer_forward_propagation(A_prev, W_curr, b_curr, activation="relu"):
     # calculation of the input value for the activation function
     
     Z_curr = W_curr.dot(A_prev) + b_curr
-    # selection of activation function
-#     if activation is "relu":
-#         activation_func = relu
-#     elif activation is "sigmoid":
-#         activation_func = sigmoid
-#     else:
-#         raise Exception('Non-supported activation function')
-        
+
     # return of calculated activation A and the intermediate Z matrix
     return globals()[activation](Z_curr), Z_curr
 ```
@@ -331,7 +324,7 @@ def single_layer_backward_propagation(dA_curr, W_curr, b_curr, Z_curr, A_prev, a
     # derivative of the matrix W
     dW_curr = 1/m * dZ_curr.dot(A_prev.T)
     # derivative of the vector b
-    db_curr = 1/m * np.sum(dZ_curr, axis=1, keepdims=True)
+    db_curr = np.mean(dZ_curr, axis=1, keepdims=True)
     # derivative of the matrix A_prev
     dA_prev = W_curr.T.dot(dZ_curr)
 
@@ -394,7 +387,7 @@ def full_backward_propagation(Y_hat, Y, memory, params_values, nn_architecture):
         b_curr = params_values["b" + str(layer_idx_curr)]
         
         dA_prev, dW_curr, db_curr = single_layer_backward_propagation(
-            dA_curr, W_curr, b_curr, Z_curr, A_prev, str(activ_function_curr))
+            dA_curr, W_curr, b_curr, Z_curr, A_prev, activ_function_curr)
         
         grads_values["dW" + str(layer_idx_curr)] = dW_curr
         grads_values["db" + str(layer_idx_curr)] = db_curr
@@ -423,8 +416,8 @@ def update(params_values, grads_values, nn_architecture, learning_rate):
 
     # iteration over network layers
     for layer_idx, layer in enumerate(nn_architecture, 1):
-        params_values["W" + str(layer_idx)] = params_values["W" + str(layer_idx)] - learning_rate * grads_values["dW" + str(layer_idx)]
-        params_values["b" + str(layer_idx)] = params_values["b" + str(layer_idx)] - learning_rate * grads_values["db" + str(layer_idx)]
+        params_values["W" + str(layer_idx)] -= learning_rate * grads_values["dW" + str(layer_idx)]
+        params_values["b" + str(layer_idx)] -= learning_rate * grads_values["db" + str(layer_idx)]
 
     return params_values;
 ```
@@ -490,22 +483,37 @@ And last but not least, let's plot how the accuracy and cost evolved over the tr
 
 ```python
 plt.plot(np.arange(10000), np.array(cost_history))
+plt.xlabel("Epoch")
+plt.ylabel("Cost")
+plt.title("Cost")
+plt.style.use("fivethirtyeight")
 ```
 
 ```python
 plt.plot(np.arange(10000), np.array(accuracy_history))
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy")
+plt.title("Accuracy for Training Data")
+plt.style.use("fivethirtyeight")
 ```
 
 ### Question 1:
 What can you say about the learning progress of the model?
 
 
+The accuracy more or less monotonously increases. 
+
+
 ### Question 2:
 Can you find out how many trainable parameters our model contains? Do you think that this number of parameters is appropriate for our classification task?
 
 ```python
-
+# Number of tunable params
+np.sum([x.size for x in params_values.values()])
 ```
+
+Very good accuracy (close to 1) can be achieved with less hidden layers, even with no hidden layers: just the input and the output layers.
+
 
 Congratulations, you made it through the sixth tutorial of this course!
 

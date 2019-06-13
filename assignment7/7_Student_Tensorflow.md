@@ -45,6 +45,9 @@ from utils import random_mini_batches
 import tensorflow as tf
 from tensorflow.python.framework import ops
 tf.VERSION
+
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 ```
 
 ## Data preprocessing
@@ -530,15 +533,13 @@ def compute_loss(Y, Z, activation='sigmoid'):
     labels = tf.transpose(Y)
     
     if activation == 'sigmoid':
-        loss = tf.reduce_mean(
-            tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits))
+        loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits)
     elif activation == 'softmax':
-        loss = tf.reduce_mean(
-            tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits))
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels, logits=logits)
     else:
         raise ValueError('activation has to be either sigmoid or softmax!')
         
-    return loss
+    return tf.reduce_mean(loss)
 
 ```
 
@@ -547,8 +548,19 @@ def compute_loss(Y, Z, activation='sigmoid'):
 We will now bring everything together in the `model` function. Complete the function by using the functions you implemented above:
 
 ```python
+# from IPython.display import clear_output
+# def update_progress(progress):
+#     # displays a progress bar
+#     bar_length = 50
+#     block = int(round(bar_length * progress))
+#     clear_output(wait = True)
+#     text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+#     print(text)
+```
+
+```python
 def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001,
-          num_epochs=1000, minibatch_size = 32, print_loss = True):
+          num_epochs=100, minibatch_size = 32, print_loss = True):
     
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     
@@ -565,13 +577,13 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
     X, Y = create_placeholders(n_x, n_y)
     
     # Initialize objects for the parameters (weights and biases) with our function from above
-    parameters = #your_code
+    parameters = initialize_parameters(architecture)
     
     # Forward propagation: Build the forward propagation in the tensorflow graph with our function from above
-    Z_n = #your_code
+    Z_n = forward_propagation(X, architecture, parameters)
     
     # Loss function: Add loss function to tensorflow graph
-    loss = #your_code
+    loss = compute_loss(Y, Z_n)
     
     # Backpropagation: Define the tensorflow optimizer. Use an AdamOptimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
@@ -608,6 +620,7 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
             
             # Print the cost every epoch
             if print_loss == True and epoch % 100 == 0:
+#                 update_progress(epoch / num_epochs)
                 print ("Loss after epoch %i: %f" % (epoch, epoch_loss))
             if print_loss == True and epoch % 5 == 0:
                 loss_history.append(epoch_loss)
@@ -631,7 +644,7 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
             correct_prediction = tf.equal(tf.argmax(Z_n), tf.argmax(Y))
             
         # Calculate accuracy on the test set. Hint: use tensorflows reduce-mean() and cast function
-        accuracy = #your_code
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
         print ("Train Accuracy:", accuracy.eval({X: X_train, Y: Y_train}))
         print ("Test Accuracy:", accuracy.eval({X: X_test, Y: Y_test}))

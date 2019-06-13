@@ -530,9 +530,11 @@ def compute_loss(Y, Z, activation='sigmoid'):
     labels = tf.transpose(Y)
     
     if activation == 'sigmoid':
-        loss = #your_code
+        loss = tf.reduce_mean(
+            tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits))
     elif activation == 'softmax':
-        loss = #your_code
+        loss = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits))
     else:
         raise ValueError('activation has to be either sigmoid or softmax!')
         

@@ -323,8 +323,8 @@ def create_placeholders(n_x, n_y):
       In fact, the number of examples during test/train is different.
     """
     # define the input: 
-    X = tf.placeholder('X', shape=[n_x, None], dtype=tf.float32)
-    Y = tf.placeholder('Y', shape=[n_y, None], dtype=tf.float32)
+    X = tf.placeholder(shape=[n_x, None], dtype=tf.float32)
+    Y = tf.placeholder(shape=[n_y, None], dtype=tf.float32)
     
     return X, Y
 ```
@@ -463,7 +463,8 @@ def forward_propagation(X, architecture, parameters):
     for i, layer_parameters in enumerate(parameters):
         
         # linear transformation
-        Z = #your_code
+        WA_prev = tf.matmul(layer_parameters["weights"], A)
+        Z = tf.add(WA_prev, layer_parameters["bias"])
         
         if i == len(parameters) - 1:
             # return Z if we are in the last layer
@@ -471,7 +472,7 @@ def forward_propagation(X, architecture, parameters):
         else:
             # otherwise apply the activation function
             if architecture[i]['activation'] == 'relu':
-                A = #your_code
+                A = tf.nn.relu(Z)
             else:
                 raise NotImplementedError('activation '+architecture[i]['activation']+' not implemented!')
                 

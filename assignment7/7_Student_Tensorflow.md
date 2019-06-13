@@ -55,7 +55,7 @@ We have selected some pictures from the three selected classes and printed them 
 
 ```python
 from IPython.display import display, Image
-display(Image(filename='./image_samples.png'))
+#display(Image(filename='./image_samples.png'))
 ```
 
 The original image size was (75, 100, 3). The '3' as the last number of the shape, indicates that we are dealing with RGB-images here. 3 for the 3 color channels red, green and blue. Then we reduced the image resolution to 28x28 pixels (resulting in a shape of (28,28,3)), so that we can easily pass it into our model later. 
@@ -94,9 +94,14 @@ y_test = y_test.T
 print('Shape of y_test', y_test.shape)
 ```
 
+```python
+ X_train[:,1040]
+```
+
 Below mentioned image shows how the downsampled image looks like. For plotting, we have to transform the flattened shape back into its pixel and channel shape, as required by the imshow function. Change the number to see different samples.
 
 ```python
+#One image is one column (because we transposed data)
 x = X_train[:,1040].reshape(28,28,3)
 plt.imshow(x)
 ```
@@ -317,9 +322,9 @@ def create_placeholders(n_x, n_y):
     - You will use None because it let's us be flexible on the number of examples you will for the placeholders.
       In fact, the number of examples during test/train is different.
     """
-        
-    X = #your_code
-    Y = #your_code
+    # define the input: 
+    X = tf.placeholder('X', shape=[n_x, None], dtype=tf.float32)
+    Y = tf.placeholder('Y', shape=[n_y, None], dtype=tf.float32)
     
     return X, Y
 ```

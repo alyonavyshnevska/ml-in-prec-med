@@ -383,8 +383,8 @@ def initialize_parameters(architecture):
     
     for i, param in enumerate(architecture):
         
-        input_dim = #your_code
-        output_dim = #your_code
+        input_dim = param["input_dim"]
+        output_dim = param["output_dim"]
         
         W = tf.get_variable("W{}".format(i+1), [output_dim, input_dim], initializer=tf.initializers.he_normal(i))
         b = tf.get_variable("b{}".format(i+1), [output_dim, 1], initializer=tf.zeros_initializer())

@@ -337,9 +337,9 @@ As we did in our last exercise, we define the architecture using a list of dicti
 ```python
 NN_ARCHITECTURE = [
     {"input_dim": 2352, "output_dim": 25, "activation": "relu"},
-    {"input_dim": 25, "output_dim": 25, "activation": "relu"},
-    {"input_dim": 25, "output_dim": 25, "activation": "relu"},
-    {"input_dim": 25, "output_dim": 3, "activation": "softmax"},
+#     {"input_dim": 25, "output_dim": 25, "activation": "relu"},
+#     {"input_dim": 25, "output_dim": 25, "activation": "relu"},
+    {"input_dim": 25, "output_dim": 3, "activation": "sigmoid"},
 ] 
 ```
 
@@ -562,8 +562,8 @@ def update_progress(progress):
 ```
 
 ```python
-def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.00005,
-          num_epochs=500, minibatch_size = 32, print_loss = True):
+def model(X_train, Y_train, X_test, Y_test, architecture, 
+          learning_rate = 0.01, num_epochs=3, minibatch_size = 128, print_loss = True):
     
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     
@@ -659,23 +659,61 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0000
 
         print ("Train Accuracy:", accuracy.eval({X: X_train, Y: Y_train}))
         print ("Test Accuracy:", accuracy.eval({X: X_test, Y: Y_test}))
+        print('Y', Y)
         
         return parameters
 ```
 
-learning_rate = 0.00005, num_epochs=500, minibatch_size = 32, print_loss = True)
-Train Accuracy: 0.8100137
-Test Accuracy: 0.7972
-
 ```python
-model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE)
+model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE, num_epochs=300, minibatch_size = 128,
+     learning_rate = 0.01)
 ```
+
+learning_rate = 0.00005, num_epochs=500, minibatch_size = 32, print_loss = True)  
+Train Accuracy: 0.8100137  
+Test Accuracy: 0.7972  
+
+
+learning_rate = 0.0001, num_epochs=10, minibatch_size = 10, print_loss = True  
+Train Accuracy: 0.79029495  
+Test Accuracy: 0.7772  
+
+
+learning_rate = 0.0001, num_epochs=10, minibatch_size = 100  
+Train Accuracy: 0.7247942  
+Test Accuracy: 0.71  
+
+
+learning_rate = 0.1, num_epochs=10, minibatch_size = 128  
+Train Accuracy: 0.8030407  
+Test Accuracy: 0.7949333  
+
+
+learning_rate = 0.01, num_epochs=3, minibatch_size = 128  
+Train Accuracy: 0.8683128
+Test Accuracy: 0.8589333
+
+
+learning_rate = 0.01, num_epochs=3, minibatch_size = 128  
+Only input layer and output layer. Sctuvation of output layer == sigmoid  
+Train Accuracy: 0.8683128  
+Test Accuracy: 0.8589333  
+
 
 **Question:**  
 Play around with the architecture, (i.e. add another layer), learning rate, epochs, ... as far the your computer allows it. Did you find a constellation, that gives a better result? 
 
 
-If we set the learning rate lower, for example to 0.00005, theoretically the accuracy should improve, because the gradient descent descents slower and more precise.
+If we set the learning rate lower, for example to 0.00005, theoretically the accuracy should improve, because the gradient descent descents slower and more precise. 
+
+Small mini-batches learn quicker, but larger mini-batches should perform better over time. Therefore, we increased the mini-batch size to 128 and it improved the results. Decresing the mini-batch size worsened the results.
+
+Changing the last activation function to sigmoid improved the results. 
+
+For example, when we trained with the learning rate 0.01, just 3 epochs, and mini-batch size of 128 the test accuracy is 0.858.  
+Only input layer and output layer. Sctuvation of output layer == sigmoid  
+
+Increasing the number of epochs from 3 to 300 increases the test accuracy only by 0.1, yielding 0.8648. The Training accuracy is then by 0.872
 
 
 Congratulations, you made it through the seventh tutorial of this course!

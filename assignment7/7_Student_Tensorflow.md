@@ -529,13 +529,14 @@ def compute_loss(Y, Z, activation='sigmoid'):
      
     """
     # to fit the tensorflow requirement for tf.nn.softmax_cross_entropy_with_logits(...,...)
-    logits = tf.transpose(Z)
-    labels = tf.transpose(Y)
+    inputs = {
+    'logits' : tf.transpose(Z),
+    'labels' : tf.transpose(Y) }
     
     if activation == 'sigmoid':
-        loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits)
+        loss = tf.nn.sigmoid_cross_entropy_with_logits(**inputs)
     elif activation == 'softmax':
-        loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels, logits=logits)
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(**inputs)
     else:
         raise ValueError('activation has to be either sigmoid or softmax!')
         
@@ -548,19 +549,21 @@ def compute_loss(Y, Z, activation='sigmoid'):
 We will now bring everything together in the `model` function. Complete the function by using the functions you implemented above:
 
 ```python
-# from IPython.display import clear_output
-# def update_progress(progress):
-#     # displays a progress bar
-#     bar_length = 50
-#     block = int(round(bar_length * progress))
-#     clear_output(wait = True)
-#     text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
-#     print(text)
+# create a progress bar
+
+from IPython.display import clear_output
+def update_progress(progress):
+    # displays a progress bar
+    bar_length = 50
+    block = int(round(bar_length * progress))
+    clear_output(wait = True)
+    text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+    print(text)
 ```
 
 ```python
-def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001,
-          num_epochs=100, minibatch_size = 32, print_loss = True):
+def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.00005,
+          num_epochs=500, minibatch_size = 32, print_loss = True):
     
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     
@@ -583,6 +586,7 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
     Z_n = forward_propagation(X, architecture, parameters)
     
     # Loss function: Add loss function to tensorflow graph
+    activation = architecture[-1]['activation']
     loss = compute_loss(Y, Z_n)
     
     # Backpropagation: Define the tensorflow optimizer. Use an AdamOptimizer
@@ -590,6 +594,8 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
     
     # Initialize all the variables
     init = tf.global_variables_initializer()
+    
+#     saver = tf.train.Saver()
     
     with tf.Session() as sess:
         
@@ -619,11 +625,15 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
                 epoch_loss += minibatch_loss / num_minibatches
             
             # Print the cost every epoch
-            if print_loss == True and epoch % 100 == 0:
-#                 update_progress(epoch / num_epochs)
+            if print_loss == True and epoch % 10 == 0:
+                update_progress(epoch / num_epochs)
                 print ("Loss after epoch %i: %f" % (epoch, epoch_loss))
             if print_loss == True and epoch % 5 == 0:
                 loss_history.append(epoch_loss)
+            
+        # Save the variables to disk.
+#         save_path = saver.save(sess, "/saved_models/model_500e_0-00005.ckpt")
+#         print("Model saved in path: %s" % save_path)
     
     
         # plot the cost
@@ -639,6 +649,7 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
 
         # Calculate the correct predictions
         if architecture[-1]["activation"] == "sigmoid":
+            # if output layer > 0.5 => output == 1. checks against true label
             correct_prediction = tf.equal(tf.cast(tf.greater_equal(Z_n, tf.constant(0.5)), "float"), Y)
         elif architecture[-1]["activation"] == "softmax":
             correct_prediction = tf.equal(tf.argmax(Z_n), tf.argmax(Y))
@@ -652,6 +663,10 @@ def model(X_train, Y_train, X_test, Y_test, architecture, learning_rate = 0.0001
         return parameters
 ```
 
+learning_rate = 0.00005, num_epochs=500, minibatch_size = 32, print_loss = True)
+Train Accuracy: 0.8100137
+Test Accuracy: 0.7972
+
 ```python
 model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE)
 ```
@@ -659,9 +674,9 @@ model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE)
 **Question:**  
 Play around with the architecture, (i.e. add another layer), learning rate, epochs, ... as far the your computer allows it. Did you find a constellation, that gives a better result? 
 
-```python
 
-```
+If we set the learning rate lower, for example to 0.00005, theoretically the accuracy should improve, because the gradient descent descents slower and more precise.
+
 
 Congratulations, you made it through the seventh tutorial of this course!
 

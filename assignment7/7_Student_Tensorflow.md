@@ -563,7 +563,7 @@ def update_progress(progress):
 
 ```python
 def model(X_train, Y_train, X_test, Y_test, architecture, 
-          learning_rate = 0.01, num_epochs=3, minibatch_size = 128, print_loss = True):
+          learning_rate = 0.01, num_epochs=1000, minibatch_size = 128, print_loss = True):
     
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     
@@ -665,9 +665,14 @@ def model(X_train, Y_train, X_test, Y_test, architecture,
 ```
 
 ```python
-model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE, num_epochs=300, minibatch_size = 128,
-     learning_rate = 0.01)
+model(X_train, y_train, X_test, y_test, NN_ARCHITECTURE, learning_rate = 0.01, 
+      num_epochs=1000, minibatch_size = 128)
 ```
+
+learning_rate = 0.01, num_epochs=1000, minibatch_size = 128   
+Train Accuracy: 0.87208503  
+Test Accuracy: 0.8645333  
+
 
 learning_rate = 0.00005, num_epochs=500, minibatch_size = 32, print_loss = True)  
 Train Accuracy: 0.8100137  

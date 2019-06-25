@@ -48,6 +48,9 @@ from keras.optimizers import Adam
 from keras import regularizers
 
 from sklearn.model_selection import train_test_split
+
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 ```
 
 ## Preprocessing  the data
@@ -86,7 +89,9 @@ For example, to build a softmax regression classifier with l2-regularization, we
 
 ```python
 ridgemodel = keras.Sequential()
-ridgemodel.add(Dense(8, activation='softmax', input_shape=(2352,), kernel_regularizer=regularizers.l2(0.001))) # 2352 input features, 8 output features
+ridgemodel.add(Dense(8, activation='softmax', input_shape=(2352,), 
+                     kernel_regularizer=regularizers.l2(0.001))) 
+# 2352 input features, 8 output features
 ```
 
 Before you can train the model, it has to be compiled with an optimizer that will adjust the weights after each round:
@@ -114,7 +119,8 @@ Keras models are trained with the gradient descent algorithm, for which there ar
 Now we fit our model, by passing the training data in batches, and train for 100 epochs. 
 
 ```python
-history = ridgemodel.fit(X_train, y_train, batch_size=128, epochs=100, shuffle=True, validation_data=(X_valid, y_valid), verbose=0)
+history = ridgemodel.fit(X_train, y_train, batch_size=128, 
+                         epochs=100, shuffle=True, validation_data=(X_valid, y_valid), verbose=0)
 ```
 
 And we write a function to look at our training results
@@ -157,9 +163,13 @@ Hint: Sequential(), add(Dense()), ...
 
 def get_fully_connected(input_shape=(2352,), n_classes=8):
     
-    model = #your_code
-    
-    #your_code
+    model = keras.Sequential()
+    model.add(Dense(50, activation='relu', input_shape=input_shape,
+                    kernel_regularizer=regularizers.l2(0.001))) 
+    model.add(Dense(50, activation='relu'))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dense(8, activation='softmax'))
     
     return model
 ```

@@ -212,7 +212,7 @@ fcnet.compile(Adam(lr=0.0005), 'categorical_crossentropy', metrics=['accuracy'])
 Let's get the training started...
 
 ```python
-history = fcnet.fit(X_train, y_train, batch_size=128, epochs=50, shuffle=True, validation_data=(X_valid, y_valid), verbose=1)
+history = fcnet.fit(X_train, y_train, batch_size=128, epochs=5, shuffle=True, validation_data=(X_valid, y_valid), verbose=1)
 ```
 
 ```python
@@ -265,12 +265,22 @@ Now implement a convolutional neural network model. Try different numbers of lay
 
 ```python
 # STUDENT
-
+#hight, width, hannels
 def get_cnn(input_shape=(28,28,3), n_classes=8):
         
-    model = #your_code
-        
-    #your_code
+    model = keras.Sequential()
+    model.add(Conv2D(32, (3, 3),  input_shape=input_shape, padding="valid", activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Conv2D(32, (2, 2), padding="valid", activation="relu"))
+    model.add(Conv2D(32, (2, 2), padding="valid", activation="relu",
+             kernel_regularizer=regularizers.l2(0.001)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Flatten())
+    
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(8, activation='softmax'))
     
     return model
 ```
@@ -311,7 +321,7 @@ _______________________________________________________________________________
 <!-- #endregion -->
 
 ```python
-cnn.compile(optimizer=Adam(lr=0.0005), loss=categorical_crossentropy, metrics=['accuracy'])
+cnn.compile(optimizer=Adam(lr=0.0003), loss=categorical_crossentropy, metrics=['accuracy'])
 history = cnn.fit(X_train_rs, y_train, epochs=50, batch_size=128, validation_data=(X_valid_rs, y_valid), shuffle=True)
 
 # this can take long to run ( ~2 minutes on a MacBook pro with an i7 and our proposed architecture above)

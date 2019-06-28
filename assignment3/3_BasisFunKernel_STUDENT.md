@@ -327,9 +327,8 @@ What do the mu and s parameters control for the sigmoid and the Gaussian basis f
 
 
 
-mu: location of basis functions in input space
-s: governs spacial scale of basis functions
-Mu controls the mean so translation on the x axis, while s controls the steepness or spread (variance).
+For Sigmoid, mu represents mean and s represents spread   
+For rbf, mu represents "turning point" and s represent steepness 
 
 <!-- #region -->
 Below we've implemented a function `transform_data(df, cols, M, S, func)` that allows you to compute transformations of your input variables using the basis functions which you implemented above, where:
@@ -533,7 +532,8 @@ def tune_kernel_regression(X_train, y_train, X_valid, y_valid, L, metric='linear
     for lambd in L:
         a = get_a(K, lambd, y_train)  
         k_xstar = pairwise_kernels(X_valid, X_train, metric=metric)
-        y_hat_train = K.T.dot(a)
+#         y_hat_train = K.T.dot(a)
+        y_hat_train = K.dot(a)
         y_hat_valid = k_xstar.dot(a)
         
         train_err = rmse(y_train, y_hat_train)

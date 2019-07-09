@@ -51,6 +51,8 @@ from sklearn.model_selection import train_test_split
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+import time
 ```
 
 ## Preprocessing  the data
@@ -62,6 +64,11 @@ X = np.load('X_train.npy')
 Y = np.load('Y_train.npy')
 print('X.shape = {}'.format(X.shape))
 print('Y.shape = {}'.format(Y.shape))
+```
+
+```python
+from collections import Counter
+Counter([np.where(r==1)[0][0] for r in Y])
 ```
 
 ```python
@@ -350,13 +357,44 @@ A few notes on the competition:
 - The evaluation metric is accuracy
 
 ```python
-# STUDENT
-
 def get_cnn4Comp(input_shape=(28,28,3), n_classes=8):
-        
-    model = #your_code
-        
-    #your_code
+    # dropout: https://machinelearningmastery.com/dropout-regularization-deep-learning-models-keras/
+    # Conv2D, MaxPooling2D, Dense, Flatten, GlobalMaxPool2D, Dropout
+    model = keras.Sequential()
+    
+    model.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=input_shape
+                    , kernel_regularizer=regularizers.l2(0.001)))
+    model.add(Dropout(rate=0.4))
+    model.add(MaxPooling2D())
+    
+    model.add(Conv2D(64, kernel_size=2, activation='relu'
+                    # , kernel_regularizer=regularizers.l2(0.001)
+                    ))
+    model.add(MaxPooling2D())
+    #model.add(GlobalMaxPool2D())
+    
+    model.add(Conv2D(64, kernel_size=2, activation='relu'
+                    # ,kernel_regularizer=regularizers.l2(0.001)
+                    ))
+    model.add(Dropout(rate=0.3))
+    #model.add(MaxPooling2D())
+    
+    model.add(Conv2D(64, kernel_size=2, activation='relu'
+                    # ,kernel_regularizer=regularizers.l2(0.001)
+                    ))
+    model.add(Dropout(rate=0.4))
+    #model.add(MaxPooling2D())
+    # flatten better than globalmaxpool
+    
+    model.add(Flatten())
+    #model.add(GlobalMaxPool2D())
+    model.add(Dropout(0.5))
+    model.add(Dense(128, activation = "relu", activity_regularizer=regularizers.l2(0.000001)))
+    model.add(Dropout(0.5))
+    model.add(Dense(64, activation='relu', activity_regularizer=regularizers.l2(0.000001)))
+    model.add(Dropout(rate=0.5))
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(n_classes, activation='softmax'))
     
     return model
 ```
@@ -365,11 +403,22 @@ Once you have trained your final model, please adapt the code-snippets below to 
 
 ```python
 comp_model = get_cnn4Comp()
-
 # Call model.summary() and paste the text into your submission on moodle:
 comp_model.summary(line_length=140)
-# comp_model.compile()
-# comp_model.fit() 
+```
+
+```python
+start = time.time()
+comp_model.compile(optimizer=Adam(lr=0.0001), loss=categorical_crossentropy, metrics=['accuracy'])
+history = comp_model.fit(X_train_rs, y_train, epochs=500, batch_size=128, validation_data=(X_valid_rs, y_valid), shuffle=True)
+end = time.time()
+dur = end-start
+print(f'Dauer: {dur}')
+```
+
+```python
+plothistory(history)
+print('Comp Model Performance: {}'.format(np.mean(history.history['val_acc'][-4:])))
 ```
 
 ```python

@@ -1,7 +1,0 @@
-jupytext
-nbconvert
-matplotlib
-numpy
-pandas
-sklearn
-jupyter
